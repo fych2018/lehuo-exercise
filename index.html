@@ -1,0 +1,2762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>乐活锻炼 - 老人锻炼督促助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #FF7043;
+            --primary-light: #FFAB91;
+            --primary-dark: #D84315;
+            --secondary: #66BB6A;
+            --secondary-light: #A5D6A7;
+            --bg: #FFF8F5;
+            --card-bg: #FFFFFF;
+            --text-main: #3E2723;
+            --text-sub: #795548;
+            --text-light: #A1887F;
+            --shadow: 0 2px 12px rgba(62, 39, 35, 0.08);
+            --shadow-hover: 0 4px 20px rgba(62, 39, 35, 0.12);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ===== App Container ===== */
+        .app {
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 20px 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(216, 67, 21, 0.3);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .header-title {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header-date {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .header-greeting {
+            font-size: 17px;
+            opacity: 0.95;
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 12px 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .icon {
+            font-size: 24px;
+        }
+
+        /* ===== Today's Plan ===== */
+        .today-progress-ring {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 16px 0;
+        }
+
+        .progress-ring-wrap {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .progress-ring-svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: #FFE0D6;
+            stroke-width: 12;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease;
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-ring-num {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .progress-ring-label {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* ===== Exercise Items ===== */
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid #F5E6E0;
+        }
+
+        .exercise-item:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .exercise-detail {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .exercise-check {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 3px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .exercise-check.done {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .exercise-check.done::after {
+            content: "✓";
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* ===== Stat Row ===== */
+        .stat-row {
+            display: flex;
+            gap: 12px;
+            margin: 12px 16px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 18px 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-num {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-num.green {
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        /* ===== Reminder Banner ===== */
+        .reminder-banner {
+            margin: 12px 16px;
+            background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 12px rgba(102, 187, 106, 0.3);
+        }
+
+        .reminder-banner .bell {
+            font-size: 36px;
+            animation: ring 2s ease-in-out infinite;
+        }
+
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(-12deg); }
+            20%, 40% { transform: rotate(12deg); }
+            50% { transform: rotate(0deg); }
+        }
+
+        .reminder-text {
+            flex: 1;
+        }
+
+        .reminder-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .reminder-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        /* ===== Exercise Library ===== */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-tab {
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            background: #fff;
+            color: var(--text-sub);
+            border: 2px solid #F0E0D8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-tab.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .exercise-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin: 10px 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .exercise-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+        }
+
+        .exercise-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .exercise-card-info {
+            flex: 1;
+        }
+
+        .exercise-card-name {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .exercise-card-meta {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 4px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .exercise-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .exercise-card-expand {
+            padding: 0 16px 16px;
+            display: none;
+        }
+
+        .exercise-card.expanded .exercise-card-expand {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .exercise-steps {
+            background: #FFF3EE;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .exercise-step {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-sub);
+        }
+
+        .exercise-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .exercise-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tag-easy { background: #E8F5E9; color: #2E7D32; }
+        .tag-medium { background: #FFF3E0; color: #E65100; }
+        .tag-safe { background: #E3F2FD; color: #1565C0; }
+
+        .start-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+            background: var(--primary-dark);
+        }
+
+        /* ===== Calendar / Progress ===== */
+        .calendar {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin: 12px 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .cal-month {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .cal-nav {
+            display: flex;
+            gap: 16px;
+        }
+
+        .cal-nav button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #FFF3EE;
+            color: var(--primary);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .cal-weekday {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            padding: 6px 0;
+            font-weight: 600;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            border-radius: 10px;
+            color: var(--text-sub);
+            position: relative;
+        }
+
+        .cal-day.has-exercise {
+            background: var(--secondary-light);
+            color: #1B5E20;
+            font-weight: 700;
+        }
+
+        .cal-day.has-exercise::after {
+            content: "";
+            position: absolute;
+            bottom: 4px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--secondary);
+        }
+
+        .cal-day.today {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .cal-day.today.has-exercise {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .cal-day.today.has-exercise::after {
+            background: #fff;
+        }
+
+        .cal-day.empty {
+            visibility: hidden;
+        }
+
+        .cal-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #F5E6E0;
+        }
+
+        .cal-stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .cal-stat-num {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .cal-stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .streak-card {
+            margin: 12px 16px;
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            border-radius: var(--radius);
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(245, 124, 0, 0.3);
+        }
+
+        .streak-num {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .streak-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 6px;
+        }
+
+        .streak-encourage {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+
+        /* ===== Health Tips ===== */
+        .tip-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            margin: 10px 16px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .tip-card.warning {
+            border-left-color: #FF9800;
+        }
+
+        .tip-card.danger {
+            border-left-color: #EF5350;
+        }
+
+        .tip-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip-content {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-sub);
+        }
+
+        /* ===== Profile ===== */
+        .profile-header {
+            text-align: center;
+            padding: 30px 20px 20px;
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            box-shadow: 0 4px 16px rgba(255, 112, 67, 0.3);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .profile-sub {
+            font-size: 15px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #F5E6E0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .setting-label {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .setting-value {
+            font-size: 15px;
+            color: var(--text-light);
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            width: 52px;
+            height: 30px;
+            border-radius: 15px;
+            background: #E0E0E0;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle.on {
+            background: var(--secondary);
+        }
+
+        .toggle::after {
+            content: "";
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .toggle.on::after {
+            left: 24px;
+        }
+
+        /* ===== Bottom Tab Bar ===== */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 12px rgba(62, 39, 35, 0.06);
+            z-index: 200;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 0;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+
+        .tab-item.active {
+            color: var(--primary);
+        }
+
+        .tab-icon {
+            font-size: 26px;
+        }
+
+        .tab-label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(62, 39, 35, 0.9);
+            color: #fff;
+            padding: 16px 28px;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast .toast-icon {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ===== Exercise Timer Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .timer-modal {
+            background: #fff;
+            border-radius: 24px;
+            padding: 30px;
+            width: 85%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .timer-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .timer-exercise-name {
+            font-size: 18px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        .timer-circle {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .timer-btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .timer-btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .timer-btn-secondary {
+            background: #F5E6E0;
+            color: var(--text-sub);
+        }
+
+        /* Badge colors */
+        .bg-orange { background: #FFE0B2; }
+        .bg-green { background: #C8E6C9; }
+        .bg-blue { background: #BBDEFB; }
+        .bg-purple { background: #E1BEE7; }
+        .bg-pink { background: #F8BBD0; }
+        .bg-yellow { background: #FFF9C4; }
+        .bg-cyan { background: #B2EBF2; }
+
+        /* ===== Add Button ===== */
+        .add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            background: #FFF3EE;
+            color: var(--primary);
+            border: 2px dashed var(--primary-light);
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-btn:active {
+            background: #FFE0D6;
+            transform: scale(0.98);
+        }
+
+        .add-btn .plus {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255, 112, 67, 0.4);
+            z-index: 150;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.92);
+        }
+
+        .fab.show {
+            display: flex;
+        }
+
+        /* ===== Delete Button on Task ===== */
+        .task-delete {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #FFEBEE;
+            color: #EF5350;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        /* ===== Video Badge ===== */
+        .video-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: #E3F2FD;
+            color: #1565C0;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .video-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1565C0;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .video-btn:active {
+            transform: scale(0.98);
+            background: #0D47A1;
+        }
+
+        .video-add-btn {
+            width: 100%;
+            padding: 10px;
+            background: #F5F5F5;
+            color: var(--text-sub);
+            border: 1px dashed #BDBDBD;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* ===== Form Modal ===== */
+        .form-modal {
+            background: #fff;
+            border-radius: 24px;
+            padding: 24px 20px;
+            width: 92%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .form-modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 18px;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #F0E0D8;
+            border-radius: 12px;
+            font-size: 17px;
+            color: var(--text-main);
+            background: #FFFBF8;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .form-select {
+            appearance: auto;
+            cursor: pointer;
+        }
+
+        .icon-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .icon-option {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #F5F5F5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .icon-option.selected {
+            border-color: var(--primary);
+            background: #FFF3EE;
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .form-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .form-btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .form-btn-secondary {
+            background: #F5E6E0;
+            color: var(--text-sub);
+        }
+
+        /* ===== Exercise Picker List ===== */
+        .picker-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        .picker-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .picker-item:active {
+            background: #FFF3EE;
+        }
+
+        .picker-item-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .picker-item-name {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .picker-item-meta {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .picker-divider {
+            text-align: center;
+            font-size: 15px;
+            color: var(--text-light);
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .picker-divider::before, .picker-divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 35%;
+            height: 1px;
+            background: #E0E0E0;
+        }
+
+        .picker-divider::before { left: 0; }
+        .picker-divider::after { right: 0; }
+
+        /* ===== Video Player Modal ===== */
+        .video-modal {
+            background: #000;
+            border-radius: 0;
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .video-modal-title {
+            font-size: 17px;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+        }
+
+        .video-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .video-container video {
+            width: 100%;
+            max-height: 100%;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-empty {
+            color: #888;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .video-empty .icon {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- ===== 首页 ===== -->
+        <div class="page active" id="page-home">
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <div class="header-title">乐活锻炼</div>
+                        <div class="header-date" id="todayDate"></div>
+                    </div>
+                    <div style="font-size: 36px;">🌞</div>
+                </div>
+                <div class="header-greeting" id="greeting"></div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="stat-num" id="weekCount">0</div>
+                    <div class="stat-label">本周锻炼(次)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num green" id="totalCount">0</div>
+                    <div class="stat-label">累计锻炼(天)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="totalMinutes">0</div>
+                    <div class="stat-label">累计时长(分)</div>
+                </div>
+            </div>
+
+            <div class="reminder-banner">
+                <div class="bell">🔔</div>
+                <div class="reminder-text">
+                    <div class="reminder-title">锻炼时间到啦！</div>
+                    <div class="reminder-desc" id="reminderDesc">下午4:00 适合户外散步，天气不错哦</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📋</span>
+                    <span>今日锻炼计划</span>
+                </div>
+                <div class="today-progress-ring">
+                    <div class="progress-ring-wrap">
+                        <svg class="progress-ring-svg" width="140" height="140">
+                            <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
+                            <circle class="progress-ring-fill" cx="70" cy="70" r="60" id="progressRing"/>
+                        </svg>
+                        <div class="progress-ring-text">
+                            <div class="progress-ring-num" id="progressNum">0/3</div>
+                            <div class="progress-ring-label">已完成</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="todayExercises"></div>
+                <button class="add-btn" onclick="openAddTaskModal()">
+                    <span class="plus">+</span>
+                    <span>添加锻炼项目</span>
+                </button>
+            </div>
+
+            <div class="card" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border: none;">
+                <div class="card-title" style="color: #2E7D32;">
+                    <span class="icon">💪</span>
+                    <span>坚持就是胜利！</span>
+                </div>
+                <p style="font-size: 17px; line-height: 1.7; color: #388E3C;">
+                    每天坚持锻炼30分钟，可以有效改善心肺功能、增强肌肉力量、预防跌倒。您已经坚持了 <strong id="streakDays">0</strong> 天，继续保持！
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== 运动库 ===== -->
+        <div class="page" id="page-exercise">
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <div class="header-title">运动库</div>
+                        <div class="header-date">选择适合您的运动</div>
+                    </div>
+                    <div style="font-size: 36px;">🏋️</div>
+                </div>
+            </div>
+
+            <div class="category-tabs" id="categoryTabs">
+                <div class="cat-tab active" data-cat="all">全部</div>
+                <div class="cat-tab" data-cat="walk">散步健走</div>
+                <div class="cat-tab" data-cat="stretch">拉伸柔韧</div>
+                <div class="cat-tab" data-cat="balance">平衡训练</div>
+                <div class="cat-tab" data-cat="strength">力量训练</div>
+                <div class="cat-tab" data-cat="taichi">太极养生</div>
+                <div class="cat-tab" data-cat="other">自定义</div>
+            </div>
+
+            <div id="exerciseList"></div>
+            <button class="add-btn" style="margin: 10px 16px 20px; width: calc(100% - 32px);" onclick="openAddExerciseModal()">
+                <span class="plus">+</span>
+                <span>添加自定义运动</span>
+            </button>
+        </div>
+
+        <!-- ===== 进度追踪 ===== -->
+        <div class="page" id="page-progress">
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <div class="header-title">锻炼记录</div>
+                        <div class="header-date">坚持每一天</div>
+                    </div>
+                    <div style="font-size: 36px;">📊</div>
+                </div>
+            </div>
+
+            <div class="streak-card">
+                <div class="streak-num" id="streakNum">0</div>
+                <div class="streak-label">连续锻炼天数</div>
+                <div class="streak-encourage" id="streakMsg">开始您的第一次锻炼吧！</div>
+            </div>
+
+            <div class="calendar">
+                <div class="cal-header">
+                    <div class="cal-month" id="calMonth"></div>
+                    <div class="cal-nav">
+                        <button id="calPrev">‹</button>
+                        <button id="calNext">›</button>
+                    </div>
+                </div>
+                <div class="cal-grid" id="calGrid"></div>
+                <div class="cal-stats">
+                    <div class="cal-stat">
+                        <div class="cal-stat-num" id="monthDays">0</div>
+                        <div class="cal-stat-label">本月锻炼</div>
+                    </div>
+                    <div class="cal-stat">
+                        <div class="cal-stat-num" id="monthMinutes">0</div>
+                        <div class="cal-stat-label">本月时长</div>
+                    </div>
+                    <div class="cal-stat">
+                        <div class="cal-stat-num" id="monthRate">0%</div>
+                        <div class="cal-stat-label">完成率</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🏆</span>
+                    <span>锻炼成就</span>
+                </div>
+                <div id="achievements"></div>
+            </div>
+        </div>
+
+        <!-- ===== 健康贴士 ===== -->
+        <div class="page" id="page-tips">
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <div class="header-title">健康贴士</div>
+                        <div class="header-date">科学锻炼，健康生活</div>
+                    </div>
+                    <div style="font-size: 36px;">💡</div>
+                </div>
+            </div>
+
+            <div id="tipsList"></div>
+        </div>
+
+        <!-- ===== 个人中心 ===== -->
+        <div class="page" id="page-profile">
+            <div class="header">
+                <div class="header-top">
+                    <div>
+                        <div class="header-title">我的</div>
+                        <div class="header-date">设置与个人信息</div>
+                    </div>
+                    <div style="font-size: 36px;">⚙️</div>
+                </div>
+            </div>
+
+            <div class="profile-header">
+                <div class="avatar">👴</div>
+                <div class="profile-name" id="userName">王大爷</div>
+                <div class="profile-sub" id="userAge">68岁 · 每日目标30分钟</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🎯</span>
+                    <span>锻炼设置</span>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-orange">⏰</div>
+                        <div class="setting-label">每日锻炼目标</div>
+                    </div>
+                    <div class="setting-value">30分钟</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-green">🔔</div>
+                        <div class="setting-label">锻炼提醒</div>
+                    </div>
+                    <div class="toggle on" id="toggleReminder" onclick="toggleSwitch(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-blue">📢</div>
+                        <div class="setting-label">语音播报</div>
+                    </div>
+                    <div class="toggle on" id="toggleVoice" onclick="toggleSwitch(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-purple">📳</div>
+                        <div class="setting-label">震动提醒</div>
+                    </div>
+                    <div class="toggle" id="toggleVibrate" onclick="toggleSwitch(this)"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">👤</span>
+                    <span>个人信息</span>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-pink">📝</div>
+                        <div class="setting-label">姓名</div>
+                    </div>
+                    <div class="setting-value" id="profileName">王大爷</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-yellow">🎂</div>
+                        <div class="setting-label">年龄</div>
+                    </div>
+                    <div class="setting-value" id="profileAge">68岁</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-cyan">📏</div>
+                        <div class="setting-label">身高体重</div>
+                    </div>
+                    <div class="setting-value">170cm / 68kg</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-orange">❤️</div>
+                        <div class="setting-label">健康状况</div>
+                    </div>
+                    <div class="setting-value">轻度高血压</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📞</span>
+                    <span>紧急联系</span>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-green">📱</div>
+                        <div class="setting-label">儿子</div>
+                    </div>
+                    <div class="setting-value">138****8888</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-blue">📱</div>
+                        <div class="setting-label">女儿</div>
+                    </div>
+                    <div class="setting-value">139****6666</div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon bg-pink">🏥</div>
+                        <div class="setting-label">社区医院</div>
+                    </div>
+                    <div class="setting-value">010-8888****</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Bottom Tab Bar ===== -->
+        <div class="tab-bar">
+            <div class="tab-item active" data-page="home">
+                <div class="tab-icon">🏠</div>
+                <div class="tab-label">首页</div>
+            </div>
+            <div class="tab-item" data-page="exercise">
+                <div class="tab-icon">🏋️</div>
+                <div class="tab-label">运动库</div>
+            </div>
+            <div class="tab-item" data-page="progress">
+                <div class="tab-icon">📊</div>
+                <div class="tab-label">记录</div>
+            </div>
+            <div class="tab-item" data-page="tips">
+                <div class="tab-icon">💡</div>
+                <div class="tab-label">贴士</div>
+            </div>
+            <div class="tab-item" data-page="profile">
+                <div class="tab-icon">⚙️</div>
+                <div class="tab-label">我的</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Timer Modal -->
+    <div class="modal-overlay" id="timerModal">
+        <div class="timer-modal">
+            <div class="timer-title">⏱️ 锻炼计时</div>
+            <div class="timer-exercise-name" id="timerExerciseName"></div>
+            <div class="timer-circle">
+                <svg width="180" height="180" style="transform: rotate(-90deg);">
+                    <circle cx="90" cy="90" r="80" fill="none" stroke="#FFE0D6" stroke-width="10"/>
+                    <circle cx="90" cy="90" r="80" fill="none" stroke="#FF7043" stroke-width="10" stroke-linecap="round" id="timerRing"/>
+                </svg>
+                <div class="timer-display" id="timerDisplay">00:00</div>
+            </div>
+            <div class="timer-controls">
+                <button class="timer-btn timer-btn-secondary" id="timerPause">暂停</button>
+                <button class="timer-btn timer-btn-primary" id="timerFinish">完成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal (choose from library or create custom) -->
+    <div class="modal-overlay" id="addTaskModal">
+        <div class="form-modal">
+            <div class="form-modal-title">添加锻炼项目</div>
+            <div class="picker-list" id="pickerList"></div>
+            <div class="picker-divider">或自定义</div>
+            <div class="form-group">
+                <label class="form-label">项目名称</label>
+                <input type="text" class="form-input" id="taskName" placeholder="如：小区散步">
+            </div>
+            <div class="form-group">
+                <label class="form-label">锻炼时长</label>
+                <input type="number" class="form-input" id="taskDuration" placeholder="分钟" value="15">
+            </div>
+            <div class="form-group">
+                <label class="form-label">选择图标</label>
+                <div class="icon-picker" id="taskIconPicker">
+                    <div class="icon-option selected" data-icon="🚶">🚶</div>
+                    <div class="icon-option" data-icon="🏃">🏃</div>
+                    <div class="icon-option" data-icon="🧘">🧘</div>
+                    <div class="icon-option" data-icon="🙆">🙆</div>
+                    <div class="icon-option" data-icon="💪">💪</div>
+                    <div class="icon-option" data-icon="🦵">🦵</div>
+                    <div class="icon-option" data-icon="✋">✋</div>
+                    <div class="icon-option" data-icon="💆">💆</div>
+                    <div class="icon-option" data-icon="🤸">🤸</div>
+                    <div class="icon-option" data-icon="🚴">🚴</div>
+                    <div class="icon-option" data-icon="🏊">🏊</div>
+                    <div class="icon-option" data-icon="🧎">🧎</div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="closeModal('addTaskModal')">取消</button>
+                <button class="form-btn form-btn-primary" onclick="saveCustomTask()">添加到今日</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Exercise Modal -->
+    <div class="modal-overlay" id="addExerciseModal">
+        <div class="form-modal">
+            <div class="form-modal-title" id="exerciseModalTitle">添加自定义运动</div>
+            <div class="form-group">
+                <label class="form-label">运动名称</label>
+                <input type="text" class="form-input" id="exName" placeholder="如：广场舞">
+            </div>
+            <div class="form-group">
+                <label class="form-label">运动分类</label>
+                <select class="form-select" id="exCategory">
+                    <option value="walk">散步健走</option>
+                    <option value="stretch">拉伸柔韧</option>
+                    <option value="balance">平衡训练</option>
+                    <option value="strength">力量训练</option>
+                    <option value="taichi">太极养生</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">锻炼时长（分钟）</label>
+                <input type="number" class="form-input" id="exDuration" placeholder="如：20" value="15">
+            </div>
+            <div class="form-group">
+                <label class="form-label">运动强度</label>
+                <select class="form-select" id="exIntensity">
+                    <option value="低强度">低强度</option>
+                    <option value="中低强度">中低强度</option>
+                    <option value="中强度">中强度</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">选择图标</label>
+                <div class="icon-picker" id="exIconPicker">
+                    <div class="icon-option selected" data-icon="🚶">🚶</div>
+                    <div class="icon-option" data-icon="🏃">🏃</div>
+                    <div class="icon-option" data-icon="🧘">🧘</div>
+                    <div class="icon-option" data-icon="🙆">🙆</div>
+                    <div class="icon-option" data-icon="💪">💪</div>
+                    <div class="icon-option" data-icon="🦵">🦵</div>
+                    <div class="icon-option" data-icon="✋">✋</div>
+                    <div class="icon-option" data-icon="💆">💆</div>
+                    <div class="icon-option" data-icon="🤸">🤸</div>
+                    <div class="icon-option" data-icon="🚴">🚴</div>
+                    <div class="icon-option" data-icon="🏊">🏊</div>
+                    <div class="icon-option" data-icon="🧎">🧎</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">运动步骤（每行一步）</label>
+                <textarea class="form-textarea" id="exSteps" placeholder="第一步：...&#10;第二步：...&#10;第三步：..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">示范视频链接（选填）</label>
+                <input type="text" class="form-input" id="exVideoUrl" placeholder="支持B站/YouTube/MP4视频链接">
+                <div class="form-hint">粘贴视频网址即可，如 https://www.bilibili.com/video/...</div>
+            </div>
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="closeModal('addExerciseModal')">取消</button>
+                <button class="form-btn form-btn-primary" onclick="saveCustomExercise()">保存运动</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Video URL Modal -->
+    <div class="modal-overlay" id="addVideoModal">
+        <div class="form-modal">
+            <div class="form-modal-title">添加示范视频</div>
+            <div class="form-group">
+                <label class="form-label">视频链接</label>
+                <input type="text" class="form-input" id="videoUrlInput" placeholder="支持B站/YouTube/MP4视频链接">
+                <div class="form-hint">B站链接示例：https://www.bilibili.com/video/BVxxxxx<br>YouTube链接示例：https://www.youtube.com/watch?v=xxxxx<br>MP4直链示例：https://example.com/video.mp4</div>
+            </div>
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="closeModal('addVideoModal')">取消</button>
+                <button class="form-btn form-btn-primary" onclick="saveVideoUrl()">保存视频</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div class="modal-overlay" id="videoPlayerModal" style="background: #000;">
+        <div class="video-modal">
+            <div class="video-modal-header">
+                <div class="video-close" onclick="closeVideoPlayer()">✕</div>
+                <div class="video-modal-title" id="videoPlayerTitle">示范视频</div>
+                <div style="width: 36px;"></div>
+            </div>
+            <div class="video-container" id="videoContainer">
+                <div class="video-empty">
+                    <span class="icon">🎬</span>
+                    <div>暂无示范视频</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Data =====
+        const exercises = [
+            {
+                id: 1, name: "晨间散步", category: "walk", icon: "🚶", bgClass: "bg-green",
+                duration: "20分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "选择平坦、空气清新的路线，如公园或小区步道",
+                    "穿舒适的运动鞋，先慢走3分钟热身",
+                    "保持中等步速，自然摆臂，抬头挺胸",
+                    "散步过程中注意呼吸节奏，不要憋气",
+                    "结束后慢走2分钟放松，做简单拉伸"
+                ]
+            },
+            {
+                id: 2, name: "八段锦", category: "taichi", icon: "🧘", bgClass: "bg-purple",
+                duration: "15分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "双手托天理三焦：双手交叉上举，缓缓抬头",
+                    "左右开弓似射雕：马步站立，左右交替拉弓",
+                    "调理脾胃须单举：单手上举，另一手下按",
+                    "五劳七伤往后瞧：缓慢转头向后看",
+                    "摇头摆尾去心火：马步摇摆，动作要缓慢柔和",
+                    "每组动作重复6-8次，呼吸自然均匀"
+                ]
+            },
+            {
+                id: 3, name: "坐姿拉伸操", category: "stretch", icon: "🙆", bgClass: "bg-blue",
+                duration: "10分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "坐在稳固的椅子上，双脚平放地面",
+                    "缓慢转头：左右各5次，动作轻柔",
+                    "耸肩放松：上下10次，缓解肩部紧张",
+                    "扩胸伸展：双手背后交叉，挺胸10秒",
+                    "体侧弯曲：左右各5次，感受腰部拉伸",
+                    "踝关节旋转：左右脚各转10圈，促进血液循环"
+                ]
+            },
+            {
+                id: 4, name: "太极拳入门", category: "taichi", icon: "太极", bgClass: "bg-purple",
+                duration: "20分钟", intensity: "中低强度", tags: ["medium", "safe"],
+                tagLabels: {"medium": "适中", "safe": "安全"},
+                steps: [
+                    "起势：双脚并拢，双手自然下垂，静心站立",
+                    "野马分鬃：弓步前推，左右交替",
+                    "白鹤亮翅：虚步亮掌，重心后移",
+                    "搂膝拗步：弓步搂推，动作连贯",
+                    "手挥琵琶：虚步合手，身形中正",
+                    "每个动作缓慢匀速，配合深呼吸"
+                ]
+            },
+            {
+                id: 5, name: "靠墙静蹲", category: "strength", icon: "🦵", bgClass: "bg-orange",
+                duration: "5分钟", intensity: "中强度", tags: ["medium"],
+                tagLabels: {"medium": "适中"},
+                steps: [
+                    "背靠墙壁站立，双脚与肩同宽",
+                    "缓慢下蹲至大腿与地面呈45度角",
+                    "保持背部贴墙，膝盖不超过脚尖",
+                    "每次坚持15-30秒，逐渐增加时间",
+                    "休息30秒后重复，共做5组",
+                    "注意：膝盖不适请立即停止"
+                ]
+            },
+            {
+                id: 6, name: "单脚站立", category: "balance", icon: "🧍", bgClass: "bg-pink",
+                duration: "5分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "站在稳固的椅子旁边，手扶椅背",
+                    "缓慢抬起一只脚，离地约10厘米",
+                    "尽量保持平衡，坚持10-30秒",
+                    "换另一只脚重复",
+                    "每只脚做5次，逐渐延长站立时间",
+                    "能力提升后可尝试不扶椅子"
+                ]
+            },
+            {
+                id: 7, name: "手指操", category: "stretch", icon: "✋", bgClass: "bg-yellow",
+                duration: "8分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "双手用力握拳，然后完全张开，重复20次",
+                    "拇指依次触碰其他四指指尖，每指5次",
+                    "双手交叉，翻掌向上推，保持10秒",
+                    "手腕旋转：左右各转10圈",
+                    "弹钢琴：手指依次快速敲击桌面",
+                    "促进手部血液循环，预防关节僵硬"
+                ]
+            },
+            {
+                id: 8, name: "傍晚健步走", category: "walk", icon: "🏃", bgClass: "bg-green",
+                duration: "25分钟", intensity: "中低强度", tags: ["medium", "safe"],
+                tagLabels: {"medium": "适中", "safe": "安全"},
+                steps: [
+                    "选择光线充足的路线，穿反光衣物",
+                    "先慢走3分钟热身",
+                    "加快步速至微微出汗、能说话但不能唱歌的程度",
+                    "保持步频约100步/分钟",
+                    "途中可适当摆臂加大幅度",
+                    "结束后慢走2分钟，做腿部拉伸"
+                ]
+            },
+            {
+                id: 9, name: "弹力带训练", category: "strength", icon: "💪", bgClass: "bg-cyan",
+                duration: "12分钟", intensity: "中强度", tags: ["medium"],
+                tagLabels: {"medium": "适中"},
+                steps: [
+                    "准备一根轻阻力弹力带",
+                    "胸前推举：双手握带向前推，15次",
+                    "坐姿划船：脚踩弹力带向后拉，15次",
+                    "侧平举：双手踩带向两侧抬起，12次",
+                    "二头弯举：踩带屈臂，每侧12次",
+                    "每个动作做2-3组，组间休息30秒"
+                ]
+            },
+            {
+                id: 10, name: "颈肩放松操", category: "stretch", icon: "💆", bgClass: "bg-blue",
+                duration: "8分钟", intensity: "低强度", tags: ["easy", "safe"],
+                tagLabels: {"easy": "轻松", "safe": "安全"},
+                steps: [
+                    "坐直或站立，双肩放松自然下垂",
+                    "缓慢低头，下巴贴胸，保持5秒",
+                    "缓慢仰头，看天花板，保持5秒",
+                    "左右侧头，耳朵尽量贴肩，各保持5秒",
+                    "肩膀向前转圈10次，向后转圈10次",
+                    "整套动作重复2-3遍，动作要慢"
+                ]
+            }
+        ];
+
+        const tips = [
+            { type: "normal", icon: "🌅", title: "最佳锻炼时间", content: "老年人最佳锻炼时间是上午9-10点和下午4-5点。避免清晨空腹锻炼和饭后立即运动，每次锻炼时间以30-40分钟为宜。" },
+            { type: "warning", icon: "⚠️", title: "锻炼前注意事项", content: "锻炼前要做5-10分钟热身活动，穿着舒适的运动鞋和宽松衣物。如有头晕、胸闷、气短等不适，应立即停止运动并休息。" },
+            { type: "normal", icon: "💧", title: "运动补水指南", content: "运动前30分钟喝一杯温水，运动中每隔15分钟小口喝水。不要等到口渴才喝水，运动后也不要大量饮水，应少量多次补充。" },
+            { type: "danger", icon: "🚫", title: "这些情况不宜锻炼", content: "空腹或刚吃饱时、感冒发烧期间、血压不稳定时、天气极端（太热或太冷）时、严重失眠后，都应暂停锻炼，等身体恢复后再进行。" },
+            { type: "normal", icon: "❤️", title: "心率监测建议", content: "运动时心率建议控制在(170-年龄)次/分钟左右。例如68岁的老人，运动心率不宜超过102次/分钟。可以用智能手表监测，或运动中能正常说话说明强度合适。" },
+            { type: "warning", icon: "🦴", title: "预防跌倒", content: "选择平坦、防滑的场地锻炼，避免在湿滑或不平整的地面上运动。平衡训练时一定要旁边有可扶的固定物。穿防滑运动鞋，避免穿拖鞋锻炼。" },
+            { type: "normal", icon: "🍎", title: "运动营养搭配", content: "锻炼后30分钟内补充优质蛋白质和碳水化合物，如鸡蛋、牛奶、全麦面包。日常多摄入含钙食物（牛奶、豆制品）和维生素D，有助于骨骼健康。" },
+            { type: "normal", icon: "😴", title: "运动与睡眠", content: "适度运动有助于改善睡眠质量，但避免在睡前2小时内进行剧烈运动。建议在傍晚锻炼后留出2-3小时再入睡，让身体充分放松。" },
+            { type: "warning", icon: "🌡️", title: "不同天气的锻炼", content: "高温天气选择清晨或室内锻炼，注意防暑降温；寒冷天气要做好保暖，尤其保护头部和关节；雾霾天尽量在室内活动，可做拉伸或八段锦。" },
+            { type: "normal", icon: "👥", title: "结伴锻炼更安全", content: "建议和老伴、邻居或朋友一起锻炼，既能互相督促保持习惯，又能互相照应。社区公园常有锻炼群体，加入其中还能增进社交。" }
+        ];
+
+        const achievements = [
+            { icon: "🌱", name: "初次锻炼", desc: "完成第一次锻炼", unlocked: false, condition: 1 },
+            { icon: "🔥", name: "坚持3天", desc: "连续锻炼3天", unlocked: false, condition: 3 },
+            { icon: "⭐", name: "坚持7天", desc: "连续锻炼7天", unlocked: false, condition: 7 },
+            { icon: "🏆", name: "坚持30天", desc: "连续锻炼30天", unlocked: false, condition: 30 },
+            { icon: "💯", name: "百分钟", desc: "累计锻炼100分钟", unlocked: false, condition: 100 },
+            { icon: "🎯", name: "全勤一周", desc: "一周锻炼满7天", unlocked: false, condition: 7 }
+        ];
+
+        // ===== State =====
+        let nextCustomId = 1000;
+        let state = {
+            todayExercises: [
+                { id: 1, name: "晨间散步", icon: "🚶", bgClass: "bg-green", duration: "20分钟", done: false },
+                { id: 3, name: "坐姿拉伸操", icon: "🙆", bgClass: "bg-blue", duration: "10分钟", done: false },
+                { id: 7, name: "手指操", icon: "✋", bgClass: "bg-yellow", duration: "8分钟", done: false }
+            ],
+            exerciseLog: {},
+            customExercises: [],
+            videoUrls: {},
+            streak: 0,
+            totalDays: 0,
+            totalMinutes: 0,
+            weekCount: 0,
+            calDate: new Date()
+        };
+
+        let editingExerciseId = null;
+        let addingVideoForId = null;
+
+        // Load from localStorage
+        function loadState() {
+            const saved = localStorage.getItem('lehuo_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state.exerciseLog = parsed.exerciseLog || {};
+                state.todayExercises = parsed.todayExercises || state.todayExercises;
+                state.customExercises = parsed.customExercises || [];
+                state.videoUrls = parsed.videoUrls || {};
+                nextCustomId = parsed.nextCustomId || 1000;
+            }
+            calculateStats();
+        }
+
+        function saveState() {
+            localStorage.setItem('lehuo_state', JSON.stringify({
+                exerciseLog: state.exerciseLog,
+                todayExercises: state.todayExercises,
+                customExercises: state.customExercises,
+                videoUrls: state.videoUrls,
+                nextCustomId: nextCustomId
+            }));
+        }
+
+        // Get all exercises (built-in + custom)
+        function getAllExercises() {
+            return [...exercises, ...state.customExercises];
+        }
+
+        function getExerciseById(id) {
+            return getAllExercises().find(e => e.id === id);
+        }
+
+        function calculateStats() {
+            const today = formatDate(new Date());
+            const todayData = state.exerciseLog[today] || {};
+            
+            // Update today's exercises done status
+            if (todayData.exercises) {
+                state.todayExercises.forEach(ex => {
+                    if (todayData.exercises.includes(ex.id)) {
+                        ex.done = true;
+                    }
+                });
+            }
+
+            // Calculate totals
+            state.totalDays = Object.keys(state.exerciseLog).filter(k => {
+                const d = state.exerciseLog[k];
+                return d.exercises && d.exercises.length > 0;
+            }).length;
+
+            state.totalMinutes = 0;
+            Object.values(state.exerciseLog).forEach(d => {
+                state.totalMinutes += d.minutes || 0;
+            });
+
+            // Week count
+            const now = new Date();
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - now.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+            state.weekCount = 0;
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(weekStart);
+                d.setDate(weekStart.getDate() + i);
+                const key = formatDate(d);
+                if (state.exerciseLog[key] && state.exerciseLog[key].exercises && state.exerciseLog[key].exercises.length > 0) {
+                    state.weekCount++;
+                }
+            }
+
+            // Streak
+            state.streak = 0;
+            let checkDate = new Date(now);
+            checkDate.setHours(0, 0, 0, 0);
+            while (true) {
+                const key = formatDate(checkDate);
+                if (state.exerciseLog[key] && state.exerciseLog[key].exercises && state.exerciseLog[key].exercises.length > 0) {
+                    state.streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    // If today hasn't exercised yet, check yesterday
+                    if (key === today) {
+                        checkDate.setDate(checkDate.getDate() - 1);
+                        continue;
+                    }
+                    break;
+                }
+            }
+        }
+
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        // ===== UI Functions =====
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageName).classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab-item[data-page="${pageName}"]`).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showToast(msg, icon) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = (icon ? `<span class="toast-icon">${icon}</span>` : '') + msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('on');
+            const isOn = el.classList.contains('on');
+            const label = el.previousElementSibling.querySelector('.setting-label').textContent;
+            showToast(`${label}已${isOn ? '开启' : '关闭'}`, isOn ? '✅' : '🔕');
+        }
+
+        // ===== Home Page =====
+        function renderHome() {
+            const now = new Date();
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            document.getElementById('todayDate').textContent = 
+                `${now.getMonth()+1}月${now.getDate()}日 星期${days[now.getDay()]}`;
+
+            const hour = now.getHours();
+            let greeting = '';
+            if (hour < 6) greeting = '夜深了，注意休息哦';
+            else if (hour < 9) greeting = '早上好！新的一天开始啦';
+            else if (hour < 12) greeting = '上午好！记得活动活动身体';
+            else if (hour < 14) greeting = '中午好！午休后适合散步';
+            else if (hour < 18) greeting = '下午好！是锻炼的好时光';
+            else greeting = '晚上好！轻松活动一下吧';
+            document.getElementById('greeting').textContent = greeting;
+
+            // Reminder
+            let reminder = '';
+            if (hour < 9) reminder = '早上8:00 适合晨间散步或八段锦';
+            else if (hour < 12) reminder = '上午10:00 可以做做拉伸操';
+            else if (hour < 14) reminder = '下午1:00 午休后散步消消食';
+            else if (hour < 18) reminder = '下午4:00 适合户外散步，天气不错哦';
+            else reminder = '晚上7:00 做做手指操和颈肩放松';
+            document.getElementById('reminderDesc').textContent = reminder;
+
+            // Stats
+            document.getElementById('weekCount').textContent = state.weekCount;
+            document.getElementById('totalCount').textContent = state.totalDays;
+            document.getElementById('totalMinutes').textContent = state.totalMinutes;
+            document.getElementById('streakDays').textContent = state.streak;
+
+            // Today's exercises
+            const container = document.getElementById('todayExercises');
+            container.innerHTML = state.todayExercises.map(ex => `
+                <div class="exercise-item">
+                    <div class="exercise-icon ${ex.bgClass}">${ex.icon}</div>
+                    <div class="exercise-info">
+                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-detail">⏱ ${ex.duration}</div>
+                    </div>
+                    <div class="exercise-check ${ex.done ? 'done' : ''}" onclick="toggleExercise(${ex.id})"></div>
+                    <button class="task-delete" onclick="deleteTask(${ex.id})" title="删除">✕</button>
+                </div>
+            `).join('');
+
+            // Progress ring
+            const doneCount = state.todayExercises.filter(e => e.done).length;
+            const total = state.todayExercises.length;
+            document.getElementById('progressNum').textContent = `${doneCount}/${total}`;
+            const circumference = 2 * Math.PI * 60;
+            const offset = circumference - (doneCount / total) * circumference;
+            document.getElementById('progressRing').style.strokeDasharray = circumference;
+            document.getElementById('progressRing').style.strokeDashoffset = offset;
+        }
+
+        function toggleExercise(id) {
+            const ex = state.todayExercises.find(e => e.id === id);
+            if (!ex) return;
+            ex.done = !ex.done;
+            
+            const today = formatDate(new Date());
+            if (!state.exerciseLog[today]) {
+                state.exerciseLog[today] = { exercises: [], minutes: 0 };
+            }
+            if (!state.exerciseLog[today].exercises) {
+                state.exerciseLog[today].exercises = [];
+            }
+
+            if (ex.done) {
+                if (!state.exerciseLog[today].exercises.includes(id)) {
+                    state.exerciseLog[today].exercises.push(id);
+                    const exData = getExerciseById(id);
+                    const mins = exData ? parseInt(exData.duration) : parseInt(ex.duration) || 0;
+                    state.exerciseLog[today].minutes = (state.exerciseLog[today].minutes || 0) + mins;
+                }
+                showToast('太棒了！锻炼完成！', '🎉');
+                if (navigator.vibrate) navigator.vibrate(200);
+            } else {
+                state.exerciseLog[today].exercises = state.exerciseLog[today].exercises.filter(eid => eid !== id);
+                const exData = getExerciseById(id);
+                const mins = exData ? parseInt(exData.duration) : parseInt(ex.duration) || 0;
+                state.exerciseLog[today].minutes = Math.max(0, (state.exerciseLog[today].minutes || 0) - mins);
+            }
+
+            saveState();
+            calculateStats();
+            renderHome();
+            renderProgress();
+        }
+
+        function deleteTask(id) {
+            state.todayExercises = state.todayExercises.filter(e => e.id !== id);
+            saveState();
+            renderHome();
+            showToast('已删除该项目', '🗑️');
+        }
+
+        // ===== Exercise Library =====
+        function renderExercises(category) {
+            const list = document.getElementById('exerciseList');
+            const allExs = getAllExercises();
+            const filtered = category === 'all' ? allExs : allExs.filter(e => e.category === category);
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-light); font-size: 16px;">暂无运动，点击下方按钮添加</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(ex => {
+                const videoUrl = state.videoUrls[ex.id] || ex.videoUrl || '';
+                const isCustom = ex.isCustom;
+                return `
+                <div class="exercise-card" data-id="${ex.id}">
+                    <div class="exercise-card-header" onclick="toggleExpand(${ex.id})">
+                        <div class="exercise-card-icon ${ex.bgClass}">${ex.icon}</div>
+                        <div class="exercise-card-info">
+                            <div class="exercise-card-name">${ex.name}${isCustom ? ' <span style="font-size:12px;color:var(--primary);background:#FFF3EE;padding:2px 8px;border-radius:8px;">自定义</span>' : ''}</div>
+                            <div class="exercise-card-meta">
+                                <span>⏱ ${ex.duration}</span>
+                                <span>💪 ${ex.intensity}</span>
+                                ${videoUrl ? '<span>🎬 有视频</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="font-size: 20px; color: var(--text-light);">›</div>
+                    </div>
+                    <div class="exercise-card-expand">
+                        <div class="exercise-steps">
+                            ${ex.steps.map((s, i) => `
+                                <div class="exercise-step">
+                                    <div class="step-num">${i + 1}</div>
+                                    <div>${s}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="exercise-tags">
+                            ${ex.tags.map(t => `<span class="tag tag-${t}">${ex.tagLabels[t]}</span>`).join('')}
+                        </div>
+                        ${videoUrl ? `<button class="video-btn" onclick="openVideoPlayer('${ex.id}')"><span>🎬</span> 观看示范视频</button>` : ''}
+                        ${!videoUrl ? `<button class="video-add-btn" onclick="openAddVideoModal(${ex.id})"><span>🎬</span> 添加示范视频</button>` : ''}
+                        ${videoUrl ? `<button class="video-add-btn" onclick="openAddVideoModal(${ex.id})">更换视频</button>` : ''}
+                        <button class="start-btn" onclick="startTimer(${ex.id})">开始锻炼</button>
+                        ${isCustom ? `<button class="video-add-btn" style="color:#EF5350;border-color:#FFCDD2;" onclick="deleteExercise(${ex.id})"><span>🗑️</span> 删除该运动</button>` : ''}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function toggleExpand(id) {
+            const card = document.querySelector(`.exercise-card[data-id="${id}"]`);
+            if (card) card.classList.toggle('expanded');
+        }
+
+        // ===== Timer =====
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let timerTarget = 0;
+        let timerPaused = false;
+        let timerExerciseId = null;
+
+        function startTimer(id) {
+            const ex = getExerciseById(id);
+            if (!ex) return;
+            timerExerciseId = id;
+            timerSeconds = 0;
+            timerTarget = parseInt(ex.duration) * 60;
+            timerPaused = false;
+            
+            document.getElementById('timerExerciseName').textContent = ex.name + ' · ' + ex.duration;
+            document.getElementById('timerDisplay').textContent = '00:00';
+            document.getElementById('timerPause').textContent = '暂停';
+            document.getElementById('timerModal').classList.add('show');
+            
+            const circumference = 2 * Math.PI * 80;
+            document.getElementById('timerRing').style.strokeDasharray = circumference;
+            document.getElementById('timerRing').style.strokeDashoffset = circumference;
+
+            timerInterval = setInterval(() => {
+                if (timerPaused) return;
+                timerSeconds++;
+                updateTimerDisplay();
+                if (timerSeconds >= timerTarget) {
+                    finishTimer();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            const circumference = 2 * Math.PI * 80;
+            const progress = timerSeconds / timerTarget;
+            const offset = circumference - progress * circumference;
+            document.getElementById('timerRing').style.strokeDashoffset = offset;
+        }
+
+        function finishTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerModal').classList.remove('show');
+            
+            // Mark exercise as done
+            const todayEx = state.todayExercises.find(e => e.id === timerExerciseId);
+            if (todayEx && !todayEx.done) {
+                toggleExercise(timerExerciseId);
+            } else {
+                // Add to today's log anyway
+                const today = formatDate(new Date());
+                if (!state.exerciseLog[today]) {
+                    state.exerciseLog[today] = { exercises: [], minutes: 0 };
+                }
+                if (!state.exerciseLog[today].exercises) {
+                    state.exerciseLog[today].exercises = [];
+                }
+                if (!state.exerciseLog[today].exercises.includes(timerExerciseId)) {
+                    state.exerciseLog[today].exercises.push(timerExerciseId);
+                    const exData = getExerciseById(timerExerciseId);
+                    if (exData) {
+                        state.exerciseLog[today].minutes = (state.exerciseLog[today].minutes || 0) + parseInt(exData.duration);
+                    }
+                    saveState();
+                    calculateStats();
+                    renderHome();
+                    renderProgress();
+                }
+                showToast('锻炼完成！继续保持！', '🎉');
+            }
+        }
+
+        // ===== Progress Page =====
+        function renderProgress() {
+            document.getElementById('streakNum').textContent = state.streak;
+            
+            let msg = '';
+            if (state.streak === 0) msg = '开始您的第一次锻炼吧！';
+            else if (state.streak < 3) msg = '好的开始是成功的一半！';
+            else if (state.streak < 7) msg = '坚持得不错，继续加油！';
+            else if (state.streak < 14) msg = '已经养成习惯了，太棒了！';
+            else if (state.streak < 30) msg = '您是锻炼达人！';
+            else msg = '惊人的毅力，向您致敬！';
+            document.getElementById('streakMsg').textContent = msg;
+
+            renderCalendar();
+
+            // Achievements
+            const achContainer = document.getElementById('achievements');
+            achContainer.innerHTML = achievements.map(ach => {
+                let unlocked = false;
+                if (ach.name === '初次锻炼' || ach.name === '坚持3天' || ach.name === '坚持7天' || ach.name === '坚持30天') {
+                    unlocked = state.streak >= ach.condition;
+                } else if (ach.name === '百分钟') {
+                    unlocked = state.totalMinutes >= ach.condition;
+                } else if (ach.name === '全勤一周') {
+                    unlocked = state.weekCount >= 7;
+                }
+                return `
+                    <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; ${unlocked ? '' : 'opacity: 0.4;'} border-bottom: 1px solid #F5E6E0;">
+                        <div style="font-size: 32px;">${unlocked ? ach.icon : '🔒'}</div>
+                        <div>
+                            <div style="font-size: 17px; font-weight: 700; color: var(--text-main);">${ach.name}</div>
+                            <div style="font-size: 14px; color: var(--text-light);">${ach.desc}</div>
+                        </div>
+                        ${unlocked ? '<div style="margin-left: auto; color: var(--secondary); font-size: 20px;">✓</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCalendar() {
+            const d = state.calDate;
+            const year = d.getFullYear();
+            const month = d.getMonth();
+            const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+            document.getElementById('calMonth').textContent = `${year}年${monthNames[month]}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            const todayKey = formatDate(today);
+
+            let html = '';
+            const weekdays = ['日','一','二','三','四','五','六'];
+            weekdays.forEach(w => html += `<div class="cal-weekday">${w}</div>`);
+            
+            for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+            
+            let monthDays = 0;
+            let monthMinutes = 0;
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(year, month, i);
+                const key = formatDate(date);
+                const hasExercise = state.exerciseLog[key] && state.exerciseLog[key].exercises && state.exerciseLog[key].exercises.length > 0;
+                const isToday = key === todayKey;
+                
+                if (hasExercise) {
+                    monthDays++;
+                    monthMinutes += state.exerciseLog[key].minutes || 0;
+                }
+                
+                html += `<div class="cal-day ${hasExercise ? 'has-exercise' : ''} ${isToday ? 'today' : ''}">${i}</div>`;
+            }
+            
+            document.getElementById('calGrid').innerHTML = html;
+            document.getElementById('monthDays').textContent = monthDays;
+            document.getElementById('monthMinutes').textContent = monthMinutes;
+            
+            const dayOfMonth = today.getFullYear() === year && today.getMonth() === month ? today.getDate() : daysInMonth;
+            document.getElementById('monthRate').textContent = Math.round(monthDays / dayOfMonth * 100) + '%';
+        }
+
+        // ===== Tips Page =====
+        function renderTips() {
+            const container = document.getElementById('tipsList');
+            container.innerHTML = tips.map(t => `
+                <div class="tip-card ${t.type === 'warning' ? 'warning' : t.type === 'danger' ? 'danger' : ''}">
+                    <div class="tip-title">
+                        <span>${t.icon}</span>
+                        <span>${t.title}</span>
+                    </div>
+                    <div class="tip-content">${t.content}</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== Modal Helpers =====
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // ===== Add Task to Today =====
+        function openAddTaskModal() {
+            const pickerList = document.getElementById('pickerList');
+            const allExs = getAllExercises();
+            const todayIds = state.todayExercises.map(e => e.id);
+            const available = allExs.filter(e => !todayIds.includes(e.id));
+            
+            if (available.length > 0) {
+                pickerList.innerHTML = available.map(ex => {
+                    const videoUrl = state.videoUrls[ex.id] || ex.videoUrl || '';
+                    return `
+                    <div class="picker-item" onclick="addLibraryTask(${ex.id})">
+                        <div class="picker-item-icon ${ex.bgClass}">${ex.icon}</div>
+                        <div style="flex:1;">
+                            <div class="picker-item-name">${ex.name}</div>
+                            <div class="picker-item-meta">⏱ ${ex.duration} · 💪 ${ex.intensity}${videoUrl ? ' · 🎬 有视频' : ''}</div>
+                        </div>
+                        <div style="color: var(--primary); font-size: 22px;">+</div>
+                    </div>
+                    `;
+                }).join('');
+            } else {
+                pickerList.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:16px;font-size:15px;">所有运动已添加，请在下方自定义</div>';
+            }
+
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDuration').value = '15';
+            resetIconPicker('taskIconPicker', '🚶');
+            document.getElementById('addTaskModal').classList.add('show');
+        }
+
+        function addLibraryTask(id) {
+            const ex = getExerciseById(id);
+            if (!ex) return;
+            state.todayExercises.push({
+                id: ex.id,
+                name: ex.name,
+                icon: ex.icon,
+                bgClass: ex.bgClass,
+                duration: ex.duration,
+                done: false
+            });
+            saveState();
+            renderHome();
+            closeModal('addTaskModal');
+            showToast('已添加到今日计划', '✅');
+        }
+
+        function saveCustomTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const duration = document.getElementById('taskDuration').value.trim() || '15';
+            const icon = getSelectedIcon('taskIconPicker');
+            
+            if (!name) {
+                showToast('请输入项目名称', '⚠️');
+                return;
+            }
+
+            const bgClasses = ['bg-orange','bg-green','bg-blue','bg-purple','bg-pink','bg-yellow','bg-cyan'];
+            const bgClass = bgClasses[Math.floor(Math.random() * bgClasses.length)];
+            
+            const taskId = nextCustomId++;
+            state.todayExercises.push({
+                id: taskId,
+                name: name,
+                icon: icon,
+                bgClass: bgClass,
+                duration: duration + '分钟',
+                done: false,
+                isCustomTask: true
+            });
+            saveState();
+            renderHome();
+            closeModal('addTaskModal');
+            showToast('已添加自定义项目', '✅');
+        }
+
+        // ===== Add/Edit Custom Exercise =====
+        function openAddExerciseModal(exerciseId) {
+            editingExerciseId = exerciseId || null;
+            const titleEl = document.getElementById('exerciseModalTitle');
+            
+            if (exerciseId) {
+                const ex = getExerciseById(exerciseId);
+                if (!ex) return;
+                titleEl.textContent = '编辑运动';
+                document.getElementById('exName').value = ex.name;
+                document.getElementById('exCategory').value = ex.category;
+                document.getElementById('exDuration').value = parseInt(ex.duration);
+                document.getElementById('exIntensity').value = ex.intensity;
+                document.getElementById('exSteps').value = ex.steps.join('\n');
+                document.getElementById('exVideoUrl').value = state.videoUrls[ex.id] || ex.videoUrl || '';
+                resetIconPicker('exIconPicker', ex.icon);
+            } else {
+                titleEl.textContent = '添加自定义运动';
+                document.getElementById('exName').value = '';
+                document.getElementById('exCategory').value = 'walk';
+                document.getElementById('exDuration').value = '15';
+                document.getElementById('exIntensity').value = '低强度';
+                document.getElementById('exSteps').value = '';
+                document.getElementById('exVideoUrl').value = '';
+                resetIconPicker('exIconPicker', '🚶');
+            }
+            
+            document.getElementById('addExerciseModal').classList.add('show');
+        }
+
+        function saveCustomExercise() {
+            const name = document.getElementById('exName').value.trim();
+            const category = document.getElementById('exCategory').value;
+            const duration = document.getElementById('exDuration').value.trim() || '15';
+            const intensity = document.getElementById('exIntensity').value;
+            const stepsText = document.getElementById('exSteps').value.trim();
+            const videoUrl = document.getElementById('exVideoUrl').value.trim();
+            const icon = getSelectedIcon('exIconPicker');
+            
+            if (!name) {
+                showToast('请输入运动名称', '⚠️');
+                return;
+            }
+            if (!stepsText) {
+                showToast('请输入运动步骤', '⚠️');
+                return;
+            }
+
+            const steps = stepsText.split('\n').map(s => s.trim()).filter(s => s);
+            const bgClasses = ['bg-orange','bg-green','bg-blue','bg-purple','bg-pink','bg-yellow','bg-cyan'];
+            const bgClass = bgClasses[Math.floor(Math.random() * bgClasses.length)];
+            
+            const intensityMap = {
+                '低强度': { tags: ['easy','safe'], tagLabels: {'easy':'轻松','safe':'安全'} },
+                '中低强度': { tags: ['medium','safe'], tagLabels: {'medium':'适中','safe':'安全'} },
+                '中强度': { tags: ['medium'], tagLabels: {'medium':'适中'} }
+            };
+            const ti = intensityMap[intensity] || intensityMap['低强度'];
+
+            if (editingExerciseId) {
+                const ex = state.customExercises.find(e => e.id === editingExerciseId);
+                if (ex) {
+                    ex.name = name;
+                    ex.category = category;
+                    ex.duration = duration + '分钟';
+                    ex.intensity = intensity;
+                    ex.steps = steps;
+                    ex.icon = icon;
+                    ex.bgClass = bgClass;
+                    ex.tags = ti.tags;
+                    ex.tagLabels = ti.tagLabels;
+                }
+                if (videoUrl) {
+                    state.videoUrls[editingExerciseId] = videoUrl;
+                } else {
+                    delete state.videoUrls[editingExerciseId];
+                }
+                showToast('运动已更新', '✅');
+            } else {
+                const newId = nextCustomId++;
+                const newEx = {
+                    id: newId,
+                    name: name,
+                    category: category,
+                    icon: icon,
+                    bgClass: bgClass,
+                    duration: duration + '分钟',
+                    intensity: intensity,
+                    tags: ti.tags,
+                    tagLabels: ti.tagLabels,
+                    steps: steps,
+                    isCustom: true
+                };
+                state.customExercises.push(newEx);
+                if (videoUrl) {
+                    state.videoUrls[newId] = videoUrl;
+                }
+                showToast('运动已添加', '✅');
+            }
+
+            saveState();
+            const activeCat = document.querySelector('.cat-tab.active').dataset.cat;
+            renderExercises(activeCat);
+            closeModal('addExerciseModal');
+        }
+
+        function deleteExercise(id) {
+            state.customExercises = state.customExercises.filter(e => e.id !== id);
+            delete state.videoUrls[id];
+            state.todayExercises = state.todayExercises.filter(e => e.id !== id);
+            saveState();
+            calculateStats();
+            const activeCat = document.querySelector('.cat-tab.active').dataset.cat;
+            renderExercises(activeCat);
+            renderHome();
+            showToast('已删除该运动', '🗑️');
+        }
+
+        // ===== Video URL Management =====
+        function openAddVideoModal(exerciseId) {
+            addingVideoForId = exerciseId;
+            const existing = state.videoUrls[exerciseId] || '';
+            document.getElementById('videoUrlInput').value = existing;
+            document.getElementById('addVideoModal').classList.add('show');
+        }
+
+        function saveVideoUrl() {
+            const url = document.getElementById('videoUrlInput').value.trim();
+            if (!url) {
+                showToast('请输入视频链接', '⚠️');
+                return;
+            }
+            state.videoUrls[addingVideoForId] = url;
+            saveState();
+            const activeCat = document.querySelector('.cat-tab.active').dataset.cat;
+            renderExercises(activeCat);
+            closeModal('addVideoModal');
+            showToast('视频已保存', '🎬');
+        }
+
+        // ===== Video Player =====
+        function getEmbedUrl(url) {
+            if (!url) return null;
+            url = url.trim();
+            
+            // MP4 direct link
+            if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                return { type: 'video', url: url };
+            }
+            
+            // YouTube
+            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+            if (ytMatch) {
+                return { type: 'iframe', url: 'https://www.youtube.com/embed/' + ytMatch[1] };
+            }
+            
+            // Bilibili
+            const biliMatch = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
+            if (biliMatch) {
+                return { type: 'iframe', url: 'https://player.bilibili.com/player.html?bvid=' + biliMatch[1] + '&high_quality=1&autoplay=0' };
+            }
+            
+            // Bilibili with av number
+            const biliAvMatch = url.match(/bilibili\.com\/video\/av(\d+)/i);
+            if (biliAvMatch) {
+                return { type: 'iframe', url: 'https://player.bilibili.com/player.html?aid=' + biliAvMatch[1] + '&high_quality=1&autoplay=0' };
+            }
+
+            // Generic iframe fallback
+            return { type: 'iframe', url: url };
+        }
+
+        function openVideoPlayer(exerciseId) {
+            const ex = getExerciseById(exerciseId);
+            const videoUrl = state.videoUrls[exerciseId] || (ex ? ex.videoUrl : '') || '';
+            
+            document.getElementById('videoPlayerTitle').textContent = (ex ? ex.name : '运动') + ' - 示范视频';
+            
+            const container = document.getElementById('videoContainer');
+            const embedData = getEmbedUrl(videoUrl);
+            
+            if (!embedData) {
+                container.innerHTML = '<div class="video-empty"><span class="icon">🎬</span><div>暂无示范视频</div></div>';
+            } else if (embedData.type === 'video') {
+                container.innerHTML = `<video src="${embedData.url}" controls autoplay style="width:100%;max-height:100%;"></video>`;
+            } else {
+                container.innerHTML = `<iframe src="${embedData.url}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:none;"></iframe>`;
+            }
+            
+            document.getElementById('videoPlayerModal').classList.add('show');
+        }
+
+        function closeVideoPlayer() {
+            document.getElementById('videoPlayerModal').classList.remove('show');
+            document.getElementById('videoContainer').innerHTML = '';
+        }
+
+        // ===== Icon Picker =====
+        function getSelectedIcon(pickerId) {
+            const selected = document.querySelector(`#${pickerId} .icon-option.selected`);
+            return selected ? selected.dataset.icon : '🚶';
+        }
+
+        function resetIconPicker(pickerId, icon) {
+            const picker = document.getElementById(pickerId);
+            picker.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.icon === icon);
+            });
+        }
+
+        // Setup icon picker click handlers
+        function setupIconPickers() {
+            document.querySelectorAll('.icon-picker').forEach(picker => {
+                picker.querySelectorAll('.icon-option').forEach(opt => {
+                    opt.onclick = function() {
+                        picker.querySelectorAll('.icon-option').forEach(o => o.classList.remove('selected'));
+                        this.classList.add('selected');
+                    };
+                });
+            });
+        }
+
+        // Close modal on overlay click
+        function setupModalOverlays() {
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                        if (this.id === 'videoPlayerModal') {
+                            document.getElementById('videoContainer').innerHTML = '';
+                        }
+                    }
+                });
+            });
+        }
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const page = tab.dataset.page;
+                switchPage(page);
+                if (page === 'home') renderHome();
+                if (page === 'progress') renderProgress();
+            });
+        });
+
+        document.querySelectorAll('.cat-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderExercises(tab.dataset.cat);
+            });
+        });
+
+        document.getElementById('calPrev').addEventListener('click', () => {
+            state.calDate.setMonth(state.calDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('calNext').addEventListener('click', () => {
+            state.calDate.setMonth(state.calDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('timerPause').addEventListener('click', function() {
+            timerPaused = !timerPaused;
+            this.textContent = timerPaused ? '继续' : '暂停';
+        });
+
+        document.getElementById('timerFinish').addEventListener('click', finishTimer);
+
+        // ===== Init =====
+        loadState();
+        setupIconPickers();
+        setupModalOverlays();
+        renderHome();
+        renderExercises('all');
+        renderProgress();
+        renderTips();
+    </script>
+</body>
+</html>
